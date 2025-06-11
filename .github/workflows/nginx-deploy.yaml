@@ -1,0 +1,36 @@
+name: Deploy Containerized Nginx to EC2
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "nginx-config/**"
+      - "ssl/**"
+      - "deploy.sh"
+      - ".github/workflows/nginx-deploy.yaml"
+
+jobs:
+  deploy-nginx:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up SSH access
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Copy config, certs, and deploy script
+      run: |
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r nginx-config/*.conf ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/conf.d/
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r ssl/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/ssl/
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.sh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/deploy.sh
+
+    - name: Run deploy.sh on EC2
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "chmod +x ~/deploy.sh && ~/deploy.sh"
