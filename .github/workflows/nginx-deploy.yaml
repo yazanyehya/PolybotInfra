@@ -3,7 +3,7 @@ name: Deploy Containerized Nginx to EC2
 on:
   push:
     branches:
-      - dev
+      - main
     paths:
       - "nginx-config/**"
       - "ssl/**"
