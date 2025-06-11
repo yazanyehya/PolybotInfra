@@ -21,5 +21,5 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/PolybotInfra
-            git pull origin dev
+            git fetch origin dev && git reset --hard origin/dev
             bash ./deploy-nginx.sh
