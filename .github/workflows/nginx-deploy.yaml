@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - "nginx-config/**"
-      - "ssl/**"
       - "deploy.sh"
       - ".github/workflows/nginx-deploy.yaml"
 
@@ -25,10 +24,9 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Copy config, certs, and deploy script
+    - name: Copy config and deploy script
       run: |
         scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r nginx-config/*.conf ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/conf.d/
-        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r ssl/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/ssl/
         scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.sh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/deploy.sh
 
     - name: Run deploy.sh on EC2
