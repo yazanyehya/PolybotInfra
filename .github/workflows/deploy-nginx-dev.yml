@@ -22,4 +22,4 @@ jobs:
           script: |
             cd /home/ubuntu/PolybotInfra
             git fetch origin dev && git reset --hard origin/dev
-            bash ./deploy-nginx.sh
+            bash ./deploy-nginx-dev.sh
